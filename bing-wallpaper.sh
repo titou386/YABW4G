@@ -5,8 +5,33 @@ API_PARMS="format=xml&idx=0&n=1"
 LOOP=true
 DAEMON=true
 RUN=true
-
 DEST="$(xdg-user-dir PICTURES)/BingWallpaper"
+
+usage() { 
+    echo "Usage: $0 [-d <string>]" 1>&2 
+    echo
+    echo "  -d  Destination directory of images"
+    echo "  -h  Display this help message."
+    echo "      Default: ${DEST}"
+    echo
+    exit 1
+}
+
+while getopts "d:h" o; do
+    case "${o}" in
+        d)
+            DEST=${OPTARG}
+            ;;
+        h)
+            usage
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
 mkdir -p ${DEST}
 
 image_url() {
