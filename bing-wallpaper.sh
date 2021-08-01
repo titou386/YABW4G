@@ -6,13 +6,16 @@ LOOP=true
 DAEMON=true
 RUN=true
 DEST="$(xdg-user-dir PICTURES)/BingWallpaper"
+HR=false
 
-usage() { 
+usage() {
+    echo
     echo "Usage: $0 [-d <string>]" 1>&2 
     echo
     echo "  -d  Destination directory of images"
     echo "  -h  Display this help message."
     echo "      Default: ${DEST}"
+    echo "  -r  Enable high resolution"
     echo
     exit 1
 }
@@ -25,6 +28,8 @@ while getopts "d:h" o; do
         h)
             usage
             ;;
+        r)
+            HR='UHD'
         *)
             usage
             ;;
@@ -37,8 +42,8 @@ mkdir -p ${DEST}
 image_url() {
     # $1 => XML
     # $2 => Resolution
-    if [[ $2 ]]; then
-        echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\urlBase>.*/\1/')_${2}.jpg"
+    if [[ HR ]]; then
+        echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\urlBase>.*/\1/')_${HR}.jpg"
     fi
         echo "$(echo $1 | sed 's/.*<url>\([^ ]*\)<\url>.*/\1/' | cut -d '&' -f 1 )"
 }
