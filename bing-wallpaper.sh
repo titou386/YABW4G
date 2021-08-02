@@ -15,12 +15,13 @@ usage() {
     echo "  -d  Destination directory of images"
     echo "  -h  Display this help message."
     echo "      Default: ${DEST}"
+    echo "  -o  Run once"
     echo "  -r  Enable high resolution"
     echo
     exit 1
 }
 
-while getopts "d:h" o; do
+while getopts "d:hor" o; do
     case "${o}" in
         d)
             DEST=${OPTARG}
@@ -28,8 +29,12 @@ while getopts "d:h" o; do
         h)
             usage
             ;;
+        o)
+            LOOP=false
+            ;;
         r)
             HR='UHD'
+            ;;
         *)
             usage
             ;;
