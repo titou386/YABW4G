@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-BING_API="https://www.bing.com/HPImageArchive.aspx"
+BING="https://www.bing.com"
+BING_API="${BING}/HPImageArchive.aspx"
 API_PARMS="format=xml&idx=0&n=1"
 LOOP=true
-DAEMON=true
+DAEMON=false
 RUN=true
 DEST="$(xdg-user-dir PICTURES)/BingWallpaper"
 HR=false
@@ -12,25 +13,25 @@ usage() {
     echo
     echo "Usage: $0 [-d <string>]" 1>&2 
     echo
+    echo "  -1  Run once"
     echo "  -d  Destination directory of images"
     echo "  -h  Display this help message."
     echo "      Default: ${DEST}"
-    echo "  -o  Run once"
     echo "  -r  Enable high resolution"
     echo
     exit 1
 }
 
-while getopts "d:hor" o; do
-    case "${o}" in
+while getopts "1d:hr" options; do
+    case "${options}" in
+        1)
+            LOOP=false
+            ;;
         d)
             DEST=${OPTARG}
             ;;
         h)
             usage
-            ;;
-        o)
-            LOOP=false
             ;;
         r)
             HR='UHD'
@@ -48,31 +49,33 @@ image_url() {
     # $1 => XML
     # $2 => Resolution
     if [[ HR ]]; then
-        echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\urlBase>.*/\1/')_${HR}.jpg"
+        echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\/urlBase>.*/\1/')_${HR}.jpg"
+    else
+        echo "$(echo $1 | sed 's/.*<url>\([^ ]*\)<\/url>.*/\1/' | cut -d '&' -f 1 )"
     fi
-        echo "$(echo $1 | sed 's/.*<url>\([^ ]*\)<\url>.*/\1/' | cut -d '&' -f 1 )"
 }
 
 file_name() {
     local DATE=$(echo $1 | sed 's/.*<startdate>\([^ ]*\)<\/startdate>.*/\1/')
-    echo "${DATE}-$(echo $BING_IMAGE_URN | cut -d . -f2-)"
+    echo "${DATE}-$(echo ${2} | cut -d . -f2-)"
 
 }
 
 apply_backgroud() {
-    gsettings set org.gnome.desktop.background picture-uri "file:///${DEST}/${1}"
-    gsettings set org.gnome.desktop.screensaver picture-uri "file:///${DEST}/${1}"
+    gsettings set org.gnome.desktop.background picture-uri file:///${DEST}/${1}
+    gsettings set org.gnome.desktop.screensaver picture-uri file:///${DEST}/${1}
 }
 
 loop() {
     while ${RUN}; do
-        local RESP_XML=$(wget -q -O- '${BING_API}?${API_PARMS}')
+        local RESP_XML=$(wget -q -O- "${BING_API}?${API_PARMS}")
         if [[ $? -eq 0 ]]; then
-            local IMAGE_NAME=$(file_name $RESP_XML)
-            if [[ ! -f "${DEST}/${IMAGE_NAME}" ]]; then
-                wget -q -O "${DEST}/${IMAGE_NAME}" "https://www.bing.com$(image_url $RESP_XML)"
+            local IMAGE_URL=$(image_url "${RESP_XML}")
+            local IMAGE_NAME=$(file_name "${RESP_XML}" "${IMAGE_URL}")
+            if [[ ! -f ${DEST}/${IMAGE_NAME} ]]; then
+                wget -q -O ${DEST}/${IMAGE_NAME} https://www.bing.com${IMAGE_URL}
                 if [[ $? -eq 0 ]]; then
-                    apply_backgroud $IMAGE_NAME
+                    apply_backgroud "${IMAGE_NAME}"
                 fi
             fi
         fi
