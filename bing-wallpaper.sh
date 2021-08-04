@@ -11,13 +11,13 @@ HR=false
 
 usage() {
     echo
-    echo "Usage: $0 [-d <string>]" 1>&2 
+    echo "Usage: $0 [OPTION]" 1>&2 
     echo
-    echo "  -1  Run once"
-    echo "  -d  Destination directory of images"
-    echo "  -h  Display this help message."
-    echo "      Default: ${DEST}"
-    echo "  -r  Enable high resolution"
+    echo "  -1              Run once & quit"
+    echo "  -d  DIRECTORY   Destination directory of images"
+    echo "                    Default: ${DEST}"
+    echo "  -h              Display this help message."
+    echo "  -r              Enable high resolution"
     echo
     exit 1
 }

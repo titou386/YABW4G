@@ -12,4 +12,12 @@ $ chmod +x bing-wallpaper.sh
 
 Add the script in 'Startup Apllications' and restart your session or execute the script. That's all.
 
+```
+Usage: bing-wallpaper.sh [OPTION]
+  -1              Run once & quit
+  -d  DIRECTORY   Destination directory of images
+                    Default: /home/$USER/Images
+  -h              Display this help message.
+  -r              Enable high resolution
+```
 > **Note:** Tested on Ubuntu 18.04.5
