@@ -17,7 +17,8 @@ Usage: bing-wallpaper.sh [OPTION]
   -1              Run once & quit
   -d  DIRECTORY   Destination directory of images
                     Default: /home/$USER/Images
-  -h              Display this help message.
+  -h              Display this help message
   -r              Enable high resolution
+  -x              Daemon mode
 ```
 > **Note:** Tested on Ubuntu 18.04.5

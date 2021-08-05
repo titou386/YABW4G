@@ -7,7 +7,7 @@ LOOP=true
 DAEMON=false
 RUN=true
 DEST="$(xdg-user-dir PICTURES)/BingWallpaper"
-HR=false
+HR="1920x1080"
 
 usage() {
     echo
@@ -16,13 +16,14 @@ usage() {
     echo "  -1              Run once & quit"
     echo "  -d  DIRECTORY   Destination directory of images"
     echo "                    Default: ${DEST}"
-    echo "  -h              Display this help message."
+    echo "  -h              Display this help message"
     echo "  -r              Enable high resolution"
+    echo "  -x              Daemon mode"
     echo
     exit 1
 }
 
-while getopts "1d:hr" options; do
+while getopts "1d:hrx" options; do
     case "${options}" in
         1)
             LOOP=false
@@ -36,6 +37,9 @@ while getopts "1d:hr" options; do
         r)
             HR='UHD'
             ;;
+        x)
+            DAEMON=true
+            ;;
         *)
             usage
             ;;
@@ -48,11 +52,7 @@ mkdir -p ${DEST}
 image_url() {
     # $1 => XML
     # $2 => Resolution
-    if [[ HR ]]; then
-        echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\/urlBase>.*/\1/')_${HR}.jpg"
-    else
-        echo "$(echo $1 | sed 's/.*<url>\([^ ]*\)<\/url>.*/\1/' | cut -d '&' -f 1 )"
-    fi
+    echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\/urlBase>.*/\1/')_${HR}.jpg"
 }
 
 file_name() {
@@ -72,6 +72,8 @@ loop() {
         if [[ $? -eq 0 ]]; then
             local IMAGE_URL=$(image_url "${RESP_XML}")
             local IMAGE_NAME=$(file_name "${RESP_XML}" "${IMAGE_URL}")
+            echo ${IMAGE_NAME}
+            echo ${IMAGE_URL}
             if [[ ! -f ${DEST}/${IMAGE_NAME} ]]; then
                 wget -q -O ${DEST}/${IMAGE_NAME} https://www.bing.com${IMAGE_URL}
                 if [[ $? -eq 0 ]]; then
