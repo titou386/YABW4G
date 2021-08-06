@@ -7,7 +7,7 @@ LOOP=true
 DAEMON=false
 RUN=true
 DEST="$(xdg-user-dir PICTURES)/BingWallpaper"
-HR="1920x1080"
+HR=""
 
 usage() {
     echo
@@ -52,7 +52,11 @@ mkdir -p ${DEST}
 image_url() {
     # $1 => XML
     # $2 => Resolution
-    echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\/urlBase>.*/\1/')_${HR}.jpg"
+    if [[ -z HR ]]; then
+        echo "$(echo $1 | sed 's/.*<urlBase>\([^ ]*\)<\/urlBase>.*/\1/')_${HR}.jpg"
+    else
+        echo "$(echo $1 | sed 's/.*<url>\([^ ]*\)<\/url>.*/\1/' | cut -d '&' -f 1 )"
+    fi
 }
 
 file_name() {
@@ -72,8 +76,6 @@ loop() {
         if [[ $? -eq 0 ]]; then
             local IMAGE_URL=$(image_url "${RESP_XML}")
             local IMAGE_NAME=$(file_name "${RESP_XML}" "${IMAGE_URL}")
-            echo ${IMAGE_NAME}
-            echo ${IMAGE_URL}
             if [[ ! -f ${DEST}/${IMAGE_NAME} ]]; then
                 wget -q -O ${DEST}/${IMAGE_NAME} https://www.bing.com${IMAGE_URL}
                 if [[ $? -eq 0 ]]; then
